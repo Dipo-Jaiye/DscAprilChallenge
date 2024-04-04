@@ -1,7 +1,6 @@
 require('dotenv').config();
 const { createServer, } = require("http");
-const { createClient, } = require("redis");
-const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, } = process.env;
+const connection = require("./om/client");
 
 // create node server
 const app = createServer((req, res) => {
@@ -23,28 +22,14 @@ const app = createServer((req, res) => {
     }
 });
 
-// create database client
-const client = createClient({
-    password: REDIS_PASSWORD,
-    socket: {
-        host: REDIS_HOST,
-        port: REDIS_PORT
-    }
-});
-
-// add error handler for the database client
-client.on('error', error => {
-    console.error(`Redis client error:`, error);
-});
-
 // start server after database is connected
-client.on('ready', () => {
+connection.on('ready', () => {
     console.log("database connected...");
     app.listen(3000, () => { console.log("server running on port 3000"); });
 });
 
 // use then/catch because an error throws when using await
-client.connect()
+connection.connect()
 .then(() => {
 
 });
